@@ -48,20 +48,21 @@ namespace MyWebApp.Controllers
                 }
             }
         }
-        [HttpGet("todos")]
+        [HttpGet("todos/todos")]
         public async Task<IActionResult> GetAll()
         {
             // Tu clave de API de Tenor
             string apiKey = "AIzaSyBATipyL64QK_zhIP5UtVoeUxI2TOW8EaA";
-            int limit = 10; // Puedes ajustar el límite según tus necesidades
+            int limit = 6; // Obtener 5 GIFs al azar
+            string randomQuery = "random"; // Término de búsqueda aleatorio
 
             using (var httpClient = new HttpClient())
             {
-                string apiUrl = $"https://api.tenor.com/v2/search?key={apiKey}&limit={limit}";
+                string apiUrl = $"https://api.tenor.com/v2/search?key={apiKey}&q={randomQuery}&limit={limit}";
 
                 try
                 {
-                    // Realizar la solicitud GET a la API de Tenor sin un valor específico
+                    // Realizar la solicitud GET a la API de Tenor con un término de búsqueda aleatorio
                     HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
 
                     // Verificar si la solicitud fue exitosa
@@ -83,5 +84,6 @@ namespace MyWebApp.Controllers
                 }
             }
         }
+
     }
 }

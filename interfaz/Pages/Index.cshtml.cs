@@ -62,6 +62,54 @@ namespace interfaz.Pages
             return Page();
         }
 
+        public async Task<IActionResult> OnPostHandleButtonClick()
+        {
+            // Realizar una solicitud a la API para obtener los GIFs recomendados
+            var apiUrl = "http://localhost:5248/tenor/";
+            var client = _httpClientFactory.CreateClient();
+
+            try
+            {
+                var response = await client.GetStringAsync(apiUrl + "todos/todos");
+
+                // Deserializar la respuesta JSON usando System.Text.Json
+                var apiData = JsonSerializer.Deserialize<ApiResponseModel>(response, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true // Esto permite que coincida con las propiedades en minúsculas en el JSON
+                });
+
+                // Verificar si hay resultados y procesar los URLs de los GIFs
+                if (apiData?.results != null && apiData.results.Count > 0)
+                {
+                    var gifsRecomendados = new List<string>();
+
+                    // Recorrer los resultados y obtener los URLs de los GIFs
+                    foreach (var result in apiData.results)
+                    {
+                        if (result?.media_formats?.gif?.url != null)
+                        {
+                            gifsRecomendados.Add(result.media_formats.gif.url);
+                        }
+                    }
+
+                    // Almacenar la lista de URLs en ViewData
+                    ViewData["RecommendedGifs"] = gifsRecomendados;
+                }
+                else
+                {
+                    // Manejar el caso en el que no se encontraron GIFs
+                    ViewData["Error"] = "No se encontraron GIFs recomendados en la respuesta de la API.";
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                // Manejar los errores de la solicitud a la API
+                ViewData["Error"] = $"Error al consultar la API: {ex.Message}";
+            }
+
+            // Redirigir de nuevo a la misma página
+            return Page();
+        }
 
     }
 }
